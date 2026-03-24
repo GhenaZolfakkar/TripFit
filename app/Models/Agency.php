@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Agency extends Model
 {
@@ -16,15 +17,21 @@ class Agency extends Model
         'website'
     ];
 
-    // Agency belongs to a user
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+  public function user()
+{
+    return $this->belongsTo(User::class);
+}
 
-    // Agency has many trips
-    public function trips()
-    {
-        return $this->hasMany(Trip::class);
-    }
+// admins
+public function admins()
+{
+    return $this->hasMany(User::class)
+        ->where('is_agency_admin', true);
+}
+
+// trips
+public function trips()
+{
+    return $this->hasMany(Trip::class);
+}
 }

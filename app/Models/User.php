@@ -51,8 +51,15 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-      public function agency()
-    {
-        return $this->hasOne(Agency::class);
-    }
+ 
+public function agency()
+{
+    return $this->hasOne(Agency::class);
+}
+
+// لو هو owner
+public function ownedAgency()
+{
+    return $this->hasOne(Agency::class);
+}
 }
