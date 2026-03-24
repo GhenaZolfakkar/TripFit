@@ -26,7 +26,11 @@ class User extends Authenticatable
     'password',
     'phone',
     'date_of_birth',
-    'account_type'
+    'account_type',
+    'is_super_admin',
+    'is_agency_admin',
+    'agency_id',
+
 ];
 
     /**

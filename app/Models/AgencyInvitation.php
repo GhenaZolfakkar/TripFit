@@ -11,9 +11,11 @@ class AgencyInvitation extends Model
         'email',
         'token',
         'status',
-        'expires_at'
+    
     ];
-
+protected $casts = [
+    'expires_at' => 'datetime',
+];
     public function agency()
     {
         return $this->belongsTo(Agency::class);

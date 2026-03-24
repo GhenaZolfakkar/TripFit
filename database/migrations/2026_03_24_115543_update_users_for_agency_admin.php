@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
     $table->foreignId('agency_id')->nullable()->constrained()->cascadeOnDelete();
     $table->boolean('is_agency_admin')->default(false);
+     $table->boolean('is_super_admin')->default(false);
 });
     }
 
@@ -24,7 +25,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
         $table->dropForeign(['agency_id']); 
-        $table->dropColumn(['agency_id', 'is_agency_admin']); 
+        $table->dropColumn(['agency_id', 'is_agency_admin','is_super_admin']); 
     });
     }
 };

@@ -47,40 +47,53 @@ class AgencyInvitationController extends Controller
     /**
      * Accept an invitation and create a user.
      */
-    public function accept(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'token' => 'required',
-            'password' => 'required|confirmed',
-        ]);
+   public function accept(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'token' => 'required',
+        'password' => 'required|confirmed',
+    ]);
 
-        $invitation = AgencyInvitation::where('email', $request->email)->first();
+    // Find the invitation by email and token together
+    $invitation = AgencyInvitation::where('email', $request->email)
+        ->where('token', hash('sha256', $request->token))
+        ->first();
 
-        if (
-            !$invitation || 
-            $invitation->token !== hash('sha256', $request->token) ||
-            $invitation->expires_at->isPast()
-        ) {
-            return response()->json(['message' => 'Invalid or expired invitation'], 400);
-        }
-
-        $user = User::create([
-            'name' => 'Agency Admin',
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'account_type' => 'agency',
-            'agency_id' => $invitation->agency_id,
-            'is_agency_admin' => true,
-        ]);
-
-        $invitation->update([
-            'status' => 'accepted',
-        ]);
-
-        return response()->json([
-            'message' => 'Invitation accepted successfully',
-            'user' => $user,
-        ]);
+    if (!$invitation) {
+        return response()->json(['message' => 'Invalid or expired invitation'], 400);
     }
+
+    // Check expiration
+    /*if ($invitation->expires_at->isPast()) {
+        return response()->json(['message' => 'Invitation expired'], 400);
+    }*/
+
+    // Prevent duplicate users
+    if (User::where('email', $request->email)->exists()) {
+        return response()->json([
+            'message' => 'User already exists for this email',
+        ], 400);
+    }
+
+    // Create user
+    $user = User::UpdateOrCreate([
+        'name' => 'Agency Admin',
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'account_type' => 'agency',
+        'agency_id' => $invitation->agency_id,
+        'is_agency_admin' => true,
+    ]);
+
+    // Mark invitation as accepted
+    $invitation->update([
+        'status' => 'accepted',
+    ]);
+
+    return response()->json([
+        'message' => 'Invitation accepted successfully',
+        'user' => $user,
+    ]);
+}
 }
